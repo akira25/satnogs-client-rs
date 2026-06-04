@@ -1,5 +1,10 @@
 # WIP: satnogs-client-rs
 
+A lightweight, rust-based client for the [SatNOGS network](https://network.satnogs.org)
+
+> [!TIP]
+> Main Repository: [codeberg.org/akira25/satnogs-client-rs](https://codeberg.org/akira25/satnogs-client-rs). Please contribute there.
+
 This is an implementation of a client for the SatNOGS network. I had some
 goals in mind when programming this:
 
