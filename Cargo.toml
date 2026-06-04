@@ -6,19 +6,19 @@ license = "UNLICENSED"
 publish = false
 
 [dependencies]
+anyhow = { version = "1.0.102", features = ["backtrace"] }
 chrono = "0.4.42"
+clap = { version = "4.6.1", features = ["derive"] }
 clokwerk = "0.4.0"
 config = "0.15.19"
 log = "0.4.29"
 priority-queue = "2.7.0"
+rand = "0.10.1"
+satnogs_apiclient = { path = "../rust_satnogs_api/satnogs_apiclient" }
 serde = { version = "1.0.228", features = ["derive"] }
+signal-hook = "0.4.4"
 simplelog = "0.12.2"
 ureq = { version = "3.1.4", features = ["json", "brotli"] }
-satnogs_apiclient = {path = "../rust_satnogs_api/satnogs_apiclient"}
-signal-hook = "0.4.4"
-anyhow = { version = "1.0.102", features = ["backtrace"] }
-rand = "0.10.1"
-clap = { version = "4.6.1", features = ["derive"] }
 
 [package.metadata.deb]
 maintainer = "Martin Hübner"
