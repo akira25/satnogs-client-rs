@@ -1,0 +1,101 @@
+#REQUIRED_VARIABLES = [
+#    'SATNOGS_API_TOKEN', 'SATNOGS_STATION_ID', 'SATNOGS_SOAPY_RX_DEVICE', 'SATNOGS_RX_SAMP_RATE',
+#    'SATNOGS_ANTENNA'
+#]
+
+[network]
+token = "abcfda73526faed"
+url = "https://network.satnogs.org/api/"  # environ.get('SATNOGS_NETWORK_API_URL', 'https://network.satnogs.org/api/')
+query_interval = 120  # _cast_or_none(int, environ.get( 'SATNOGS_NETWORK_API_QUERY_INTERVAL', 60))  # In seconds
+post_interval = 180  # _cast_or_none(int, environ.get('SATNOGS_NETWORK_API_POST_INTERVAL', 180))  # In seconds
+timeout = 120  # seconds
+
+[db]
+token = "abcfda73526faed"
+url = "https://db.satnogs.org/api/"
+timeout = 120  # seconds
+
+[station]
+id = 1860  # = _cast_or_none(int, environ.get('SATNOGS_STATION_ID', None))
+lat = 52.512  # = _cast_or_none(float, environ.get('SATNOGS_STATION_LAT', None))
+lon = 13.327  # = _cast_or_none(float, environ.get('SATNOGS_STATION_LON', None))
+alt = 80  # = _cast_or_none(float, environ.get('SATNOGS_STATION_ELEV', None))
+
+[scripting]
+pre_observation_script = true  # environ.get('SATNOGS_PRE_OBSERVATION_SCRIPT', None)
+pre_obs_path = "/usr/bin/satnogs-pre/" # path with scripts
+post_observation_script = true  # environ.get('SATNOGS_POST_OBSERVATION_SCRIPT', None)
+post_obs_path = "/usr/bin/satnogs-post/"
+
+[storage]  # storage policies
+remove_raw_files = true  # bool(strtobool(environ.get('SATNOGS_REMOVE_RAW_FILES', 'True')))
+keep_artifacts = false  # bool(strtobool(environ.get('SATNOGS_KEEP_ARTIFACTS', 'False')))
+app_path = "/tmp/satnogs-rs"  # environ.get('SATNOGS_APP_PATH', '/tmp/.satnogs')
+# output = "/tmp/satnogs-rs/data"  # environ.get('SATNOGS_OUTPUT_PATH', '/tmp/.satnogs/data')
+# complete_output = ""  # environ.get('SATNOGS_COMPLETE_OUTPUT_PATH', '')
+# incomplete_output = "/tmp/.satnogs-rs/data/incomplete"  # environ.get('SATNOGS_INCOMPLETE_OUTPUT_PATH', '/tmp/.satnogs/data/incomplete')
+# artifacts_output = "/tmp/.satnogs-rs/artifacts"  # environ.get('SATNOGS_ARTIFACTS_OUTPUT_PATH', '/tmp/.satnogs/artifacts')
+enable_iq_dump = false  # bool(strtobool(environ.get('ENABLE_IQ_DUMP', 'False')))
+iq_dump_filename = "iq.raw"  # environ.get('IQ_DUMP_FILENAME', None)
+
+[upload]  # Upload settings
+audio_files = true  # bool(strtobool(environ.get('SATNOGS_UPLOAD_AUDIO_FILES', 'True')))
+waterfall_files = true  # bool(strtobool(environ.get('SATNOGS_UPLOAD_WATERFALL_FILES', 'True')))
+
+[rotor]
+enabled = true  # bool(strtobool(environ.get('SATNOGS_ROT_ENABLED', 'True')))
+model = "ROT_MODEL_DUMMY"  # environ.get('SATNOGS_ROT_MODEL', 'ROT_MODEL_DUMMY')
+baud = 19200  # int(environ.get('SATNOGS_ROT_BAUD', 19200))
+port = "/dev/ttyUSB0"  # environ.get('SATNOGS_ROT_PORT', '/dev/ttyUSB0')
+threshold = 4  # int(environ.get('SATNOGS_ROT_THRESHOLD', 4))
+flip = false  # bool(strtobool(environ.get('SATNOGS_ROT_FLIP', 'False')))
+flip_angle = 75  # int(environ.get('SATNOGS_ROT_FLIP_ANGLE', 75))
+
+[rig]
+ip = "127.0.0.1"  # environ.get('SATNOGS_RIG_IP', '127.0.0.1')
+port = 4532  # int(environ.get('SATNOGS_RIG_PORT', 4532))
+
+[sdr]
+soapy_rx_device = ""  # environ.get('SATNOGS_SOAPY_RX_DEVICE', None)
+rx_samp_rate = 0  # environ.get('SATNOGS_RX_SAMP_RATE', None)
+antenna = ""  # environ.get('SATNOGS_ANTENNA', None)
+rx_bandwidth = 0  # environ.get('SATNOGS_RX_BANDWIDTH', None)
+doppler_corr_per_sec = 0  # environ.get('SATNOGS_DOPPLER_CORR_PER_SEC', None)
+lo_offset = 0  # environ.get('SATNOGS_LO_OFFSET', None)
+ppm_error = 0  # environ.get('SATNOGS_PPM_ERROR', None)
+gain_mode = "Overall"  # environ.get('SATNOGS_GAIN_MODE', 'Overall')
+rf_gain = 0  # environ.get('SATNOGS_RF_GAIN', None)
+dev_args = ""  # environ.get('SATNOGS_DEV_ARGS', None)
+stream_args = ""  # environ.get('SATNOGS_STREAM_ARGS', None)
+tune_args = ""  # environ.get('SATNOGS_TUNE_ARGS', None)
+other_settings = ""  # environ.get('SATNOGS_OTHER_SETTINGS', None)
+dc_removal = false  # environ.get('SATNOGS_DC_REMOVAL', None)
+bb_freq = ""  # environ.get('SATNOGS_BB_FREQ', None)
+
+[gr-satellites]  # gr-satellites integration
+enabled = false  # bool(strtobool(environ.get('GR_SATELLITES_ENABLED', 'False')))
+zmq_port = 0  # int(environ.get('GR_SATELLITES_ZMQ_PORT', 0))
+app = "gr_satellites"  # environ.get('GR_SATELLITES_APP', 'gr_satellites')
+keeplogs = false  # bool(strtobool(environ.get('GR_SATELLITES_KEEPLOGS', 'False')))
+
+[waterfall]  # Waterfall settings
+autorange = true  # bool(strtobool(environ.get('SATNOGS_WATERFALL_AUTORANGE', 'True')))
+min_value = -100  # int(environ.get('SATNOGS_WATERFALL_MIN_VALUE', -100))
+max_value = -50  # int(environ.get('SATNOGS_WATERFALL_MAX_VALUE', -50))
+
+# [gpsd]
+# client_enabled = false  # = bool(strtobool(environ.get('SATNOGS_GPSD_CLIENT_ENABLED', 'False')))
+# host = "127.0.0.1"  # = environ.get('SATNOGS_GPSD_HOST', '127.0.0.1')
+# port = 2847  # = _cast_or_none(int, environ.get('SATNOGS_GPSD_PORT', 2947))
+# timeout = 30  # = _cast_or_none(int, environ.get('SATNOGS_GPSD_TIMEOUT', 30))
+
+[misc]
+udp_dump_host = ""  # environ.get('UDP_DUMP_HOST', None)
+udp_dump_port = 57356  # int(environ.get('UDP_DUMP_PORT', 57356))
+gnuradio_udp_port = 16886
+gnuradio_ip = '127.0.0.1'
+
+# Logging configuration
+#LOG_FORMAT = '{levelname:<8s} {name:<31s} {message}'
+#LOG_LEVEL = environ.get('SATNOGS_LOG_LEVEL', 'WARNING')
+#SCHEDULER_LOG_LEVEL = environ.get('SATNOGS_SCHEDULER_LOG_LEVEL', 'WARNING')

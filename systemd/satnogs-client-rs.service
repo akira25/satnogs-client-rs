@@ -1,0 +1,12 @@
+[Unit]
+Description=Lightweight SatNOGS client written in Rust
+
+[Service]
+ExecStart=/usr/bin/satnogs-client-rs
+Restart=on-failure
+Type=notify
+User=root
+Group=root
+
+[Install]
+WantedBy=default.target

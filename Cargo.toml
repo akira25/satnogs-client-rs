@@ -1,0 +1,39 @@
+[package]
+name = "satnogs-client-rs"
+version = "0.1.0"
+edition = "2024"
+license = "UNLICENSED"
+publish = false
+
+[dependencies]
+chrono = "0.4.42"
+clokwerk = "0.4.0"
+config = "0.15.19"
+log = "0.4.29"
+priority-queue = "2.7.0"
+serde = { version = "1.0.228", features = ["derive"] }
+simplelog = "0.12.2"
+ureq = { version = "3.1.4", features = ["json", "brotli"] }
+satnogs_apiclient = {path = "../rust_satnogs_api/satnogs_apiclient"}
+signal-hook = "0.4.4"
+anyhow = { version = "1.0.102", features = ["backtrace"] }
+rand = "0.10.1"
+clap = { version = "4.6.1", features = ["derive"] }
+
+[package.metadata.deb]
+maintainer = "Martin Hübner"
+copyright = "© Martin Hübner, 2026"
+assets = [
+    # binary
+    "$auto",
+    # ["README.md", "usr/share/doc/satnogs-client-rs", "644"],
+    [".defaults.toml", "etc/satnogs-client-rs/defaults.toml", "644"],
+    ["config.toml", "etc/satnogs-client-rs/config.toml", "644"],
+]
+
+# must be defined, for cargo deb to generate the debian postinstall and preremove scripts
+maintainer-scripts = ""
+#conf-files = ""
+
+[package.metadata.deb.systemd-units]
+unit-scripts = "systemd"
