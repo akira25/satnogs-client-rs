@@ -6,8 +6,8 @@
 [network]
 token = "abcfda73526faed"
 url = "https://network.satnogs.org/api/"  # environ.get('SATNOGS_NETWORK_API_URL', 'https://network.satnogs.org/api/')
-query_interval = 120  # _cast_or_none(int, environ.get( 'SATNOGS_NETWORK_API_QUERY_INTERVAL', 60))  # In seconds
-post_interval = 180  # _cast_or_none(int, environ.get('SATNOGS_NETWORK_API_POST_INTERVAL', 180))  # In seconds
+query_interval = 50  # seconds
+post_interval = 180  # seconds
 timeout = 120  # seconds
 
 [db]
@@ -16,25 +16,22 @@ url = "https://db.satnogs.org/api/"
 timeout = 120  # seconds
 
 [station]
-id = 1860  # = _cast_or_none(int, environ.get('SATNOGS_STATION_ID', None))
-lat = 52.512  # = _cast_or_none(float, environ.get('SATNOGS_STATION_LAT', None))
-lon = 13.327  # = _cast_or_none(float, environ.get('SATNOGS_STATION_LON', None))
-alt = 80  # = _cast_or_none(float, environ.get('SATNOGS_STATION_ELEV', None))
+id = 1860
+lat = 52.512
+lon = 13.327
+alt = 80  # Altitude above WGS84 in Meters
 
 [scripting]
-pre_observation_script = true  # environ.get('SATNOGS_PRE_OBSERVATION_SCRIPT', None)
-pre_obs_path = "/usr/bin/satnogs-pre/" # path with scripts
-post_observation_script = true  # environ.get('SATNOGS_POST_OBSERVATION_SCRIPT', None)
-post_obs_path = "/usr/bin/satnogs-post/"
+pre_observation_script = true
+pre_obs_path = "/usr/bin/satnogs-pre/"  # path with scripts
+post_observation_script = true
+post_obs_path = "/usr/bin/satnogs-post/"  # path with scripts
 
 [storage]  # storage policies
 remove_raw_files = true  # bool(strtobool(environ.get('SATNOGS_REMOVE_RAW_FILES', 'True')))
 keep_artifacts = false  # bool(strtobool(environ.get('SATNOGS_KEEP_ARTIFACTS', 'False')))
-app_path = "/tmp/satnogs-rs"  # environ.get('SATNOGS_APP_PATH', '/tmp/.satnogs')
-# output = "/tmp/satnogs-rs/data"  # environ.get('SATNOGS_OUTPUT_PATH', '/tmp/.satnogs/data')
-# complete_output = ""  # environ.get('SATNOGS_COMPLETE_OUTPUT_PATH', '')
-# incomplete_output = "/tmp/.satnogs-rs/data/incomplete"  # environ.get('SATNOGS_INCOMPLETE_OUTPUT_PATH', '/tmp/.satnogs/data/incomplete')
-# artifacts_output = "/tmp/.satnogs-rs/artifacts"  # environ.get('SATNOGS_ARTIFACTS_OUTPUT_PATH', '/tmp/.satnogs/artifacts')
+# ToDo: Das ganze in /var/run speichern?
+artifacts_path = "/tmp/satnogs-client-rs"  # environ.get('SATNOGS_artifacts_path', '/tmp/.satnogs')
 enable_iq_dump = false  # bool(strtobool(environ.get('ENABLE_IQ_DUMP', 'False')))
 iq_dump_filename = "iq.raw"  # environ.get('IQ_DUMP_FILENAME', None)
 

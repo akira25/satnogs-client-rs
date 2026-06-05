@@ -1176,9 +1176,10 @@ dependencies = [
 [[package]]
 name = "satnogs_apiclient"
 version = "0.1.0"
-source = "git+https://codeberg.org/akira25/satnogs-api-client#cfe7d9a1a2155d1f1eef9575d2d0992ed69d1ae1"
+source = "git+https://codeberg.org/akira25/satnogs-api-client#71740cc3de0a1f4f29718eca4677029ea3753db7"
 dependencies = [
  "chrono",
+ "log",
  "regex",
  "serde",
  "serde_json",

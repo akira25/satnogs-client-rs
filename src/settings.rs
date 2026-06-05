@@ -37,7 +37,7 @@ pub struct Scripting {
 pub struct Storage {
 	pub remove_raw_files: bool,
 	pub keep_artifacts: bool,
-	pub app_path: String,
+	pub artifacts_path: String,
 	// pub output: String,
 	// pub complete_output: String,
 	// pub incomplete_output: String,

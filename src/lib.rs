@@ -6,17 +6,19 @@ pub mod queue_types;
 // pub mod tmp;
 
 use crate::observation::Observation;
-use crate::settings::Settings;
 use crate::queue_types::QueueJob;
-use std::collections::VecDeque;
-use std::process::Child;
-use std::sync::{Arc, Mutex};
+use crate::settings::Settings;
 use log::{debug, error, info};
-use satnogs_apiclient::{api_client::APIClient, filters::JobFilter, json::Job as ApiJob};
-use std::collections::BinaryHeap;
+use satnogs_apiclient::{
+	api_client::{APIClient, BasicStationInfo},
+	filters::JobFilter,
+	json::Job as ApiJob,
+};
+use std::collections::{BinaryHeap, VecDeque};
 use std::fs;
 use std::path::PathBuf;
-use std::process::Command;
+use std::process::{Child, Command};
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Clone)]
 pub struct AppState {
@@ -41,13 +43,13 @@ impl AppState {
 	}
 }
 
-pub fn task_housekeeping(
+/// Starts and stops observations. This function gets called once a second.
+pub fn task_observation_housekeeping(
 	current_job: Arc<Mutex<Option<ApiJob>>>,
 	flowgraph_handle: Arc<Mutex<Option<Child>>>,
 	future_jobs: Arc<Mutex<BinaryHeap<QueueJob>>>,
-    conf: Settings,
+	conf: Settings,
 ) {
-	debug!("Polling local job queue.");
 	let now = chrono::Utc::now();
 
 	// Try to acquire locks on queues etc
@@ -85,29 +87,29 @@ pub fn task_housekeeping(
 		return;
 	}
 
-	if let Some(next_job) = next_job_queue.peek() {
-		if next_job.start <= now {
-			let cmd = CmdArgs {
-				program: "python3".to_string(),
-				args: vec!["./test.py".to_string(), "-a".to_string()],
-                pwd: conf.storage.app_path.into(),
-			};
+	if let Some(next_job) = next_job_queue.peek()
+		&& next_job.start <= now
+	{
+		let cmd = CmdArgs {
+			program: "python3".to_string(),
+			args: vec!["./test.py".to_string(), "-a".to_string()],
+			pwd: conf.storage.artifacts_path.into(),
+		};
 
-			match Command::new(cmd.program).args(cmd.args).spawn() {
-				Err(_) => {
-					error!("Failed to spawn flowgraph 'ToDO'!");
-				},
+		match Command::new(cmd.program).args(cmd.args).current_dir(cmd.pwd).spawn() {
+			Err(_) => {
+				error!("Failed to spawn flowgraph 'ToDO'!");
+			},
 
-				Ok(child) => {
-					info!("Started flowgraph: 'ToDo'");
+			Ok(child) => {
+				info!("Started flowgraph: 'ToDo'");
 
-					// save process handle
-					*curr_job_handle = Some(child);
+				// save process handle
+				*curr_job_handle = Some(child);
 
-					// move job from queue -> current_job
-					*curr_job_info = next_job_queue.pop().map(|qj| qj.job);
-				},
-			}
+				// move job from queue -> current_job
+				*curr_job_info = next_job_queue.pop().map(|qj| qj.job);
+			},
 		}
 	}
 }
@@ -163,42 +165,41 @@ pub fn task_poll_network_jobs(
 	q_future_jobs: Arc<Mutex<BinaryHeap<QueueJob>>>,
 	api: APIClient,
 	settings: Settings,
-) {
+) -> anyhow::Result<()> {
 	debug!("Polling Network for jobs...");
 	let mut future_jobs = q_future_jobs.lock().unwrap();
 	debug!("Acquired future_jobs mutex.");
 
 	future_jobs.clear();
-	let jobs = fetch_jobs(api.clone(), settings.station.id);
+	let jobs = fetch_jobs(api.clone(), settings.clone())?;
 	for job in jobs {
 		future_jobs.push(QueueJob { start: job.start, job });
 	}
 	debug!("{} future jobs in queue.", future_jobs.len());
+
+	Ok(())
 }
 
-pub fn fetch_jobs(api: APIClient, station: u32) -> Vec<ApiJob> {
+pub fn fetch_jobs(api: APIClient, conf: Settings) -> anyhow::Result<Vec<ApiJob>> {
 	let f = JobFilter {
-		ground_station: Some(station),
+		ground_station: Some(conf.station.id),
 		..Default::default()
 	};
 
-	api.get_jobs(f).unwrap()
+	let station_info = BasicStationInfo {
+		ground_station: conf.station.id,
+		lat: conf.station.lat,
+		lon: conf.station.lon,
+		alt: conf.station.alt,
+	};
+
+	Ok(api.get_jobs_heartbeat(f, station_info, conf.network.token)?)
 }
 
 pub struct CmdArgs {
 	pub program: String,
 	pub args: Vec<String>,
-    pub pwd: PathBuf,
-}
-
-/// Called every second and starts an observation, if on time
-fn observation_start() {
-	todo!()
-}
-
-/// Called every second and stops observation on time
-fn observation_stop() {
-	todo!()
+	pub pwd: PathBuf,
 }
 
 fn flowgraph_task() {

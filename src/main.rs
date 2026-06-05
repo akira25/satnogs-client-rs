@@ -1,6 +1,6 @@
-use anyhow;
+use clap::Parser;
 use clokwerk::{Job, Scheduler, TimeUnits};
-use log::{debug, info};
+use log::{debug, error, info};
 use satnogs_apiclient::{api_client::APIClient, json::Job as ApiJob};
 use satnogs_client_rs::*;
 use satnogs_client_rs::{queue_types::QueueJob, settings::Settings};
@@ -11,23 +11,26 @@ use signal_hook::{
 use simplelog::{LevelFilter, SimpleLogger};
 use std::{
 	collections::BinaryHeap,
+	fs,
 	process::Child,
 	sync::{Arc, Mutex},
 	time::Duration,
 };
 use ureq::Agent;
-use clap::Parser;
 
 #[derive(Debug, Parser)]
 struct Cli {
 	#[arg(long, help = "Set logging level (debug, info, warn, error). Default is 'info'")]
-    log: Option<log::LevelFilter>,
+	log: Option<log::LevelFilter>,
 }
 
 fn main() -> anyhow::Result<()> {
 	let args = Cli::parse();
-	let _logger = SimpleLogger::init(args.log.unwrap_or(LevelFilter::Info), simplelog::Config::default());
-	let mut signals = Signals::new(&[SIGTERM])?;
+	let _logger = SimpleLogger::init(
+		args.log.unwrap_or(LevelFilter::Info),
+		simplelog::Config::default(),
+	);
+	let mut signals = Signals::new([SIGTERM])?;
 
 	//
 	// --- global state ---
@@ -40,8 +43,11 @@ fn main() -> anyhow::Result<()> {
 	let flowgraph_handle: Arc<Mutex<Option<Child>>> = Arc::new(Mutex::new(None));
 
 	info!("Loading settings...");
-	let settings = Settings::new().expect("Loading settings failed!");
+	let settings = Settings::new()?;
 	debug!("Settings: {:?}", settings);
+
+	debug!("Creating run directory.");
+	fs::create_dir_all(settings.clone().storage.artifacts_path)?;
 
 	debug!("Initialising API-Client..");
 	let agent = Agent::config_builder().timeout_global(Some(Duration::from_secs(20)));
@@ -53,7 +59,7 @@ fn main() -> anyhow::Result<()> {
 		"Fetching jobs for station {} from {}",
 		settings.station.id, settings.network.url
 	);
-	let jobs = fetch_jobs(api.clone(), settings.station.id);
+	let jobs = fetch_jobs(api.clone(), settings.clone())?;
 	info!("Fetched {} jobs from the network", jobs.len());
 
 	debug!("Trying to acquire lock...");
@@ -71,7 +77,7 @@ fn main() -> anyhow::Result<()> {
 
 	// API load balancing trough random offset. distributes client accesses
 	// over the minute
-	let offset = rand::random_range(5..=35);
+	let offset = rand::random_range(5..=10);
 
 	// --- Fetch current job list from network every 2 minutes ---
 	let conf = settings.clone();
@@ -80,7 +86,15 @@ fn main() -> anyhow::Result<()> {
 		.every(settings.network.query_interval.seconds())
 		.plus(offset.seconds())
 		.run(move || {
-			task_poll_network_jobs(Arc::clone(&qfuture_jobs), api.clone(), conf.clone())
+			let res = task_poll_network_jobs(
+				Arc::clone(&qfuture_jobs),
+				api.clone(),
+				conf.clone(),
+			);
+			match res {
+				Ok(_) => {},
+				Err(e) => error!("{}", e),
+			}
 		});
 	debug!("... registered network polling jobs.");
 
@@ -97,7 +111,7 @@ fn main() -> anyhow::Result<()> {
 	let conf = settings.clone();
 	let hfuture_jobs = future_jobs.clone();
 	scheduler.every(1.second()).run(move || {
-		task_housekeeping(
+		task_observation_housekeeping(
 			Arc::clone(&current_job),
 			Arc::clone(&flowgraph_handle),
 			Arc::clone(&hfuture_jobs),
