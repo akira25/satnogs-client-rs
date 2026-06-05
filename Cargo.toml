@@ -14,7 +14,7 @@ config = "0.15.19"
 log = "0.4.29"
 priority-queue = "2.7.0"
 rand = "0.10.1"
-satnogs_apiclient = { path = "../rust_satnogs_api/satnogs_apiclient" }
+satnogs_apiclient = { git = "https://codeberg.org/akira25/satnogs-api-client"}
 serde = { version = "1.0.228", features = ["derive"] }
 signal-hook = "0.4.4"
 simplelog = "0.12.2"
